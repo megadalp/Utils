@@ -11,8 +11,16 @@ public class Formatter {
         /* Десятки */{"", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"},
         /* Сотни   */{"", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"},
     };
+
+    // FIXME: у числительных женского рода другое произношение цифр 1 и 2
+    static java.util.function.Supplier<String[]> NumeralNameFemale = () -> {
+        String[] n = Arrays.copyOf(numeralName[0], numeralName[0].length);
+        n[1] = "одна";
+        n[2] = "две";
+        return n;
+    };
     final private static String[][] numeralNameFemale = {
-        /* Единицы */concat(new String[]{"", "одна", "две"}, Arrays.copyOfRange(numeralName[0], 3, numeralName[0].length - 4)),
+        /* Единицы */NumeralNameFemale.get(),
         /* Десятки */numeralName[1],
         /* Сотни   */numeralName[2],
     };
@@ -21,21 +29,16 @@ public class Formatter {
      * названия разрядов числительных в разных количествах
      */
     final private static String[][] numeralTriadNameCases = {
-        {"", "", ""}, // у низшего разряда имен нет
-        //   1       2,3,4      v-- остальные числа
-        {"тысяча", "тысячи", "тысяч"},
-        {"миллион", "миллиона", "миллионов"},
-        {"миллиард", "миллиарда", "миллиардов"},
-        {"триллион", "триллиона", "триллионов"},
+        //1             2,3,4           5-20
+        {"",            "",             ""}, // у низшего разряда имен нет
+        {"тысяча",      "тысячи",       "тысяч"},
+        {"миллион",     "миллиона",     "миллионов"},
+        {"миллиард",    "миллиарда",    "миллиардов"},
+        {"триллион",    "триллиона",    "триллионов"},
         {"квадриллион", "квадриллиона", "квадриллионов"},
         {"квинтиллион", "квинтиллиона", "квинтиллионов"},
     };
 
-    public static <T> T[] concat(T[] first, T[] second) {
-        T[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    }
 
     /**
      * Целое число прописью
@@ -86,8 +89,17 @@ public class Formatter {
                 for (n = triads[t].length - 1; n >= 0; n--) {
                     // ноль в целых никак не озвучивается
                     if (triads[t][n] != 0) {
-                        //                               vvvvvvvv--- Иногда единицы изменения - женского рода, типа тысяча, копейка, и т.п.
-                        triadStr += " " + (((t == 1) || femaleUnits) ? numeralNameFemale[n][triads[t][n]] : numeralName[n][triads[t][n]]);
+                        triadStr += " " +
+                            (
+                                (
+                                    //"тысяча" - женского рода
+                                    (t == 1)
+                                    // единица тоже м.б. женского рода (копейка, капля) - нужно указывать
+                                    || ((t == 0) && femaleUnits)
+                                )
+                                    ? numeralNameFemale[n][triads[t][n]]
+                                    : numeralName[n][triads[t][n]]
+                            );
                     }
                 }
                 if (triadStr.length() > 0) {
@@ -126,7 +138,7 @@ public class Formatter {
      * Сумма в рублях прописью
      */
     public static String asPriceInWords(Number price) {
-        long priceInKops = Math.toIntExact(Math.round(price.doubleValue() * 100.0));
+        long priceInKops = Math.round(price.doubleValue() * 100.0);
         long floatPart = priceInKops % 100;
         long intPart = (priceInKops - floatPart) / 100;
 
@@ -159,7 +171,8 @@ public class Formatter {
     }
 
     public static String morph(Number number, String title1, String title234, String titleOthers) {
-        number = Math.abs(number.longValue());
+        // Для склонения интересует только разряд единиц и десятков, так что лишнее сразу отбрасываем
+        number = Math.abs(number.longValue()) % 100;
         return (number.longValue() >= 5 && number.longValue() <= 20)
             ? titleOthers
             :

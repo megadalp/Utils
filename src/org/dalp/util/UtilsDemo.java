@@ -46,9 +46,11 @@ class UtilsDemo {
             System.out.println(args[0] + " : " + Formatter.asNumberInWords(args[0], true) + " " + Formatter.morph(args[0], "штука", "штуки", "штук"));
             System.out.println(args[0] + " : " + Formatter.asNumberInWords(args[0]) + " " + Formatter.morph(args[0], "рубль", "рубля", "рублей"));
             System.out.println(args[0] + " : " + Formatter.asPriceInWords(args[0]));
-            return;
+            // return;
         }
         System.out.println("Обычное использование");
+        System.out.println("342563 : " + Formatter.asNumberInWords(342563));
+        System.out.println("9876543.21 : " + Formatter.asNumberInWords(9876543.21)); // "двадцать одна сотая" не делал за ненадобностью. Про суммы с копейками есть ниже.
         testNumber = 8980;
         System.out.println(testNumber + " as long : " + Formatter.asNumberInWords(testNumber, true) + " " + Formatter.morph(testNumber, "штука", "штуки", "штук"));
         testNumber = 31;
@@ -65,12 +67,21 @@ class UtilsDemo {
         testNumber = -123;
         System.out.println(testNumber + " : " + Formatter.asNumberInWords(testNumber) + " " + Formatter.morph(testNumber, "рубль", "рубля", "рублей"));
         System.out.println("");
+        testNumber = 400;
+        System.out.println(testNumber + " : Я же просил " + Formatter.asNumberInWords(testNumber, true) + " " + Formatter.morph(testNumber, "капля", "капли", "капель") + ",");
+        testNumber = 402;
+        System.out.println(testNumber + " : а тут " + Formatter.asNumberInWords(testNumber, true) + "... :`(");
+        System.out.println("");
         System.out.println("Максималка (long)");
-        testNumber = 922337203685477580L;
+        testNumber = 922337203685477581L;
         System.out.println(testNumber + " : " + Formatter.asNumberInWords(testNumber) + " " + Formatter.morph(testNumber, "доллар", "доллара", "долларов"));
+        testNumber = 900000000000000002L;
+        System.out.println(testNumber + " : " + Formatter.asNumberInWords(testNumber) + " " + Formatter.morph(testNumber, "юань", "юаня", "юаней"));
+        testNumber = 900900900900900909L;
+        System.out.println(testNumber + " : " + Formatter.asNumberInWords(testNumber) + " " + Formatter.morph(testNumber, "крона", "кроны", "крон"));
         System.out.println("");
         System.out.println("Сумма прописью");
-        System.out.println(Formatter.asPriceInWords(751_342.507));
+        System.out.println(Formatter.asPriceInWords(751000.507));
         System.out.println("");
         System.out.println("Пустое значение");
         testNumberString = "";
